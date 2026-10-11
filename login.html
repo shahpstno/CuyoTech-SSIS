@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CuyoTech SSIS — Login</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Bookman Old Style', serif; }
+        body { background-color: #f5f5f5; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+        .login-container { background: white; padding: 40px 35px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); width: 100%; max-width: 420px; }
+        .login-container h1 { text-align: center; color: #0b3d2e; margin-bottom: 5px; font-size: 22px; }
+        .login-container p { text-align: center; color: #555; margin-bottom: 30px; font-size: 14px; }
+        .form-group { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 6px; font-weight: 600; color: #333; }
+        input { width: 100%; padding: 11px 12px; border: 1px solid #ccc; border-radius: 4px; font-size: 15px; }
+        .role-selection { display: flex; gap: 25px; margin: 10px 0 25px; }
+        .role-option { display: flex; align-items: center; gap: 6px; cursor: pointer; }
+        button { width: 100%; padding: 12px; background-color: #0b3d2e; color: white; border: none; border-radius: 4px; font-size: 16px; font-weight: bold; cursor: pointer; }
+        button:hover { background-color: #145c47; }
+        .forgot-link { text-align: center; margin-top: 20px; font-size: 14px; color: #0b3d2e; cursor: pointer; }
+        .forgot-link:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <h1>CuyoTech SSIS</h1>
+        <p>Student Services Information System</p>
+
+
+        <form onsubmit="setLoginData(event)">
+            <div class="form-group">
+                <label for="fullname">Full Name</label>
+                <input type="text" id="fullname" placeholder="Enter your full name" required>
+            </div>
+
+
+            <div class="form-group">
+                <label for="username">Email / ID</label>
+                <input type="text" id="username" required>
+            </div>
+
+
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" required>
+            </div>
+
+
+            <div class="form-group">
+                <label>I am a:</label>
+                <div class="role-selection">
+                    <label class="role-option">
+                        <input type="radio" name="role" value="student" checked> Student
+                    </label>
+                    <label class="role-option">
+                        <input type="radio" name="role" value="admin"> Administrator
+                    </label>
+                </div>
+            </div>
+
+
+            <button type="submit">SIGN IN</button>
+        </form>
+
+
+        <p class="forgot-link">Forgot Password?</p>
+    </div>
+
+
+    <script>
+        function setLoginData(e) {
+            e.preventDefault();
+            const name = document.getElementById('fullname').value;
+            const role = document.querySelector('input[name="role"]:checked').value;
+           
+            localStorage.setItem('loggedInName', name);
+            localStorage.setItem('userRole', role);
+
+
+            if (role === 'admin') {
+                window.location.href = 'admin.html';
+            } else {
+                window.location.href = 'dashboard.html';
+            }
+        }
+    </script>
+</body>
+</html>

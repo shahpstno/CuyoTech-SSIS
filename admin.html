@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CuyoTech SSIS — Admin Panel</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Bookman Old Style', serif; }
+        body { background-color: #f5f5f5; }
+        .header { background-color: #0b3d2e; color: white; padding: 14px 30px; display: flex; justify-content: space-between; align-items: center; }
+        .header h2 { font-size: 19px; }
+        .user-area { display: flex; align-items: center; gap: 15px; }
+        .logout-btn { background: white; color: #0b3d2e; padding: 8px 16px; border-radius: 4px; text-decoration: none; font-weight: bold; }
+        .wrapper { display: flex; min-height: calc(100vh - 60px); }
+        .sidebar { width: 240px; background: white; padding: 30px 20px; box-shadow: 1px 0 3px rgba(0,0,0,0.05); }
+        .sidebar a { display: block; padding: 12px 14px; margin-bottom: 8px; color: #333; text-decoration: none; border-radius: 4px; }
+        .sidebar a:hover, .sidebar a.active { background: #e6f2ee; color: #0b3d2e; font-weight: bold; }
+        .main-content { flex: 1; padding: 30px; }
+        .page-title { font-size: 22px; margin-bottom: 25px; color: #0b3d2e; }
+        .badge { display: inline-block; background: #e67700; color: white; border-radius: 10px; padding: 2px 8px; font-size: 12px; margin-left: 8px; }
+        table { width: 100%; border-collapse: collapse; background: white; border-radius: 6px; overflow: hidden; box-shadow: 0 2px 6px rgba(0,0,0,0.06); margin-bottom: 30px; }
+        th, td { padding: 13px 18px; text-align: left; border-bottom: 1px solid #eee; }
+        th { background: #f8f9fa; font-weight: bold; color: #0b3d2e; }
+        .status-pending { color: #e67700; font-weight: bold; }
+        .status-approved { color: #0b7a3f; font-weight: bold; }
+        .status-rejected { color: #d32f2f; font-weight: bold; }
+        .btn-approve { background: #0b7a3f; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; margin-right: 5px; }
+        .btn-reject { background: #d32f2f; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h2>CuyoTech SSIS — Administrator Panel</h2>
+        <div class="user-area">
+            <span id="adminNameDisplay">Welcome</span>
+            <a href="login.html" class="logout-btn">Logout</a>
+        </div>
+    </div>
+
+
+    <div class="wrapper">
+        <div class="sidebar">
+            <a href="#" class="tab-link active" data-tab="pending">🔽 Pending Requests <span class="badge" id="pendingBadge">0</span></a>
+            <a href="#" class="tab-link" data-tab="approved">✅ Approved</a>
+            <a href="#" class="tab-link" data-tab="rejected">❌ Rejected</a>
+            <a href="#" class="tab-link" data-tab="reports">📊 Reports</a>
+        </div>
+
+
+        <div class="main-content">
+            <h1 class="page-title">Request Management & Approval</h1>
+
+
+            <div id="pending" class="tab-content active">
+                <h3 style="margin-bottom: 15px;">🔽 Requests Needing Action</h3>
+                <table id="pendingTable">
+                    <tr>
+                        <th>Student Name</th>
+                        <th>Document</th>
+                        <th>Purpose</th>
+                        <th>Date Requested</th>
+                        <th>Action</th>
+                    </tr>
+                </table>
+            </div>
+
+
+            <div id="approved" class="tab-content">
+                <h3 style="margin-bottom: 15px;">✅ Approved Requests</h3>
+                <table id="approvedTable">
+                    <tr>
+                        <th>Student Name</th>
+                        <th>Document</th>
+                        <th>Purpose</th>
+                        <th>Date Approved</th>
+                    </tr>
+                </table>
+            </div>
+
+
+            <div id="rejected" class="tab-content">
+                <h3 style="margin-bottom: 15px;">❌ Rejected Requests</h3>
+                <table id="rejectedTable">
+                    <tr>
+                        <th>Student Name</th>
+                        <th>Document</th>
+                        <th>Purpose</th>
+                        <th>Date Rejected</th>
+                    </tr>
+                </table>
+            </div>
+
+
+            <div id="reports" class="tab-content">
+                <h3 style="margin-bottom: 15px;">📊 Summary Report</h3>
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;">
+                    <div style="background:white; padding:25px; border-radius:6px; box-shadow:0 2px 6px rgba(0,0,0,0.06);">
+                        <h4 style="color:#666; font-size:14px; margin-bottom:8px;">Pending</h4>
+                        <p style="font-size:32px; font-weight:bold; color:#e67700;" id="repPending">0</p>
+                    </div>
+                    <div style="background:white; padding:25px; border-radius:6px; box-shadow:0 2px 6px rgba(0,0,0,0.06);">
+                        <h4 style="color:#666; font-size:14px; margin-bottom:8px;">Approved</h4>
+                        <p style="font-size:32px; font-weight:bold; color:#0b7a3f;" id="repApproved">0</p>
+                    </div>
+                    <div style="background:white; padding:25px; border-radius:6px; box-shadow:0 2px 6px rgba(0,0,0,0.06);">
+                        <h4 style="color:#666; font-size:14px; margin-bottom:8px;">Rejected</h4>
+                        <p style="font-size:32px; font-weight:bold; color:#d32f2f;" id="repRejected">0</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        const adminName = localStorage.getItem('loggedInName');
+        const role = localStorage.getItem('userRole');
+       
+        if (!adminName || role !== 'admin') {
+            alert('Please login as Administrator first');
+            window.location.href = 'login.html';
+        } else {
+            document.getElementById('adminNameDisplay').textContent = `Admin: ${adminName}`;
+        }
+
+
+        document.querySelectorAll('.tab-link').forEach(link => {
+            link.addEventListener('click', e => {
+                e.preventDefault();
+                document.querySelectorAll('.tab-link').forEach(l => l.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                link.classList.add('active');
+                document.getElementById(link.dataset.tab).classList.add('active');
+            });
+        });
+
+
+        function loadAllRequests() {
+            // BASAHIN ANG LAHAT NG REQUEST — galing sa documents.html
+            const allRequests = JSON.parse(localStorage.getItem('allRequests') || '[]');
+            console.log('Total requests found:', allRequests.length); // Para makita sa console
+           
+            const pending = allRequests.filter(r => r.status === 'Pending');
+            const approved = allRequests.filter(r => r.status === 'Approved');
+            const rejected = allRequests.filter(r => r.status === 'Rejected');
+
+
+            // PENDING TABLE
+            const pendingTable = document.getElementById('pendingTable');
+            pendingTable.innerHTML = `<tr><th>Student Name</th><th>Document</th><th>Purpose</th><th>Date Requested</th><th>Action</th></tr>`;
+           
+            if (pending.length === 0) {
+                pendingTable.innerHTML += `<tr><td colspan="5" style="text-align:center; color:#666; padding:20px;">No pending requests yet</td></tr>`;
+            } else {
+                pending.forEach(r => {
+                    pendingTable.innerHTML += `
+                        <tr>
+                            <td>${r.studentName}</td>
+                            <td>${r.documentType}</td>
+                            <td>${r.purpose}</td>
+                            <td>${r.date}</td>
+                            <td>
+                                <button class="btn-approve" onclick="approveReq(${r.id})">Approve</button>
+                                <button class="btn-reject" onclick="rejectReq(${r.id})">Reject</button>
+                            </td>
+                        </tr>
+                    `;
+                });
+            }
+
+
+            // APPROVED TABLE
+            const approvedTable = document.getElementById('approvedTable');
+            approvedTable.innerHTML = `<tr><th>Student Name</th><th>Document</th><th>Purpose</th><th>Date Approved</th></tr>`;
+            approved.forEach(r => {
+                approvedTable.innerHTML += `
+                    <tr>
+                        <td>${r.studentName}</td>
+                        <td>${r.documentType}</td>
+                        <td>${r.purpose}</td>
+                        <td>${r.dateApproved || 'Today'}</td>
+                    </tr>
+                `;
+            });
+
+
+            // REJECTED TABLE
+            const rejectedTable = document.getElementById('rejectedTable');
+            rejectedTable.innerHTML = `<tr><th>Student Name</th><th>Document</th><th>Purpose</th><th>Date Rejected</th></tr>`;
+            rejected.forEach(r => {
+                rejectedTable.innerHTML += `
+                    <tr>
+                        <td>${r.studentName}</td>
+                        <td>${r.documentType}</td>
+                        <td>${r.purpose}</td>
+                        <td>${r.dateRejected || 'Today'}</td>
+                    </tr>
+                `;
+            });
+
+
+            // COUNTS
+            document.getElementById('pendingBadge').textContent = pending.length;
+            document.getElementById('repPending').textContent = pending.length;
+            document.getElementById('repApproved').textContent = approved.length;
+            document.getElementById('repRejected').textContent = rejected.length;
+        }
+
+
+        function approveReq(id) {
+            const allRequests = JSON.parse(localStorage.getItem('allRequests') || '[]');
+            const idx = allRequests.findIndex(r => r.id === id);
+            if (idx !== -1) {
+                allRequests[idx].status = 'Approved';
+                allRequests[idx].dateApproved = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                localStorage.setItem('allRequests', JSON.stringify(allRequests));
+                alert('✅ Approved! Student will see the update.');
+                loadAllRequests();
+            }
+        }
+
+
+        function rejectReq(id) {
+            const allRequests = JSON.parse(localStorage.getItem('allRequests') || '[]');
+            const idx = allRequests.findIndex(r => r.id === id);
+            if (idx !== -1) {
+                allRequests[idx].status = 'Rejected';
+                allRequests[idx].dateRejected = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                localStorage.setItem('allRequests', JSON.stringify(allRequests));
+                alert('❌ Rejected! Student will see the update.');
+                loadAllRequests();
+            }
+        }
+
+
+        loadAllRequests();
+    </script>
+</body>
+</html>
